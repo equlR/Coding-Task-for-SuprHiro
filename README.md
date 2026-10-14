@@ -1,56 +1,189 @@
-# Welcome to your Expo app 👋
+# Product Explorer — React Native Mobile Application
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A production-grade React Native mobile application built with standard **React Navigation (`@react-navigation/native-stack`)**, **TypeScript**, and a clean architectural design. It features a responsive product feed fetching live items from a public REST API, debounced search, category filtering, a detailed product view with an interactive image carousel, verified reviews, technical specifications, pull-to-refresh, skeleton shimmer loading states, and robust error handling with retry mechanisms.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 Features
 
-   ```bash
-   npm install
-   ```
+- **Product Feed (List Screen)**:
+  - Fetches and displays products in real-time from the public [DummyJSON Products API](https://dummyjson.com/products).
+  - High-performance list using `FlatList` with `expo-image` (memory-disk caching, fast decode, smooth crossfade).
+  - Debounced search query bar (~400ms delay to prevent unnecessary network requests).
+  - Dynamic horizontal category filter chips ("All", "Beauty", "Fragrances", "Furniture", etc.).
+  - Badges for discounts, ratings, and stock availability.
+- **Product Details Screen**:
+  - Stack navigation with native push/pop transitions via `@react-navigation/native-stack`.
+  - Interactive hero image gallery with image pagination dots and clickable thumbnail strip.
+  - Product metadata, calculated discount savings, and price breakdown.
+  - Technical specifications table (SKU, Weight, Dimensions, Warranty, Shipping, and Return Policy).
+  - Verified customer reviews section with star ratings, reviewer avatars, and formatted dates.
+  - Floating bottom action bar with total price and interactive "Add to Cart" feedback.
+  - Favorite toggle button with animated visual response.
+- **States & Performance**:
+  - **Loading States**: Shimmer skeleton placeholder cards (`SkeletonCard` and `SkeletonDetail`) for smooth perceived performance.
+  - **Pull-to-Refresh**: Native `RefreshControl` on both list and detail screens to reload data on demand without UI flashing.
+  - **Error States**: Dedicated `ErrorView` with iconography, descriptive error messages, and an interactive "Try Again" / "Retry" action.
+  - **Empty States**: Friendly `EmptyView` with "Clear Filters" when searches yield no matches.
+  - **Light & Dark Theme**: Adaptive theme tokens with high-contrast color palettes and typography.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🏛️ Standard React Native CLI Architecture & Folder Structure
 
-In the output, you'll find options to open the app in a
+This project follows standard **React Native Bare / CLI Project Structure** with strict separation of concerns across three core pillars:
+1. **Pure Presentation / UI (`*.tsx`)** — Components and screens only handle JSX layout, styling bindings, and user event delegation.
+2. **Dedicated Styling (`*.styles.ts`)** — All style rules are separated into dedicated style files powered by React Native's `StyleSheet.create` and centralized design tokens.
+3. **Business Logic & State (`hooks/` & `services/`)** — All network fetching, filtering, debouncing, error handling, and state manipulation live in custom hooks and typed API clients.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```text
+Coding-Task-for-SuprHiro/
+├── App.tsx                                 # Root component (NavigationContainer, ThemeProvider, SafeAreaProvider)
+├── index.js                                # Standard RN CLI / bare entry point (registerRootComponent)
+├── package.json                            # Standard "main": "index.js"
+│
+├── src/
+│   ├── navigation/                         # Standard React Navigation layer
+│   │   ├── RootNavigator.tsx               # Native Stack Navigator (ProductList -> ProductDetail)
+│   │   └── types.ts                        # RootStackParamList, screen navigation prop types
+│   │
+│   ├── screens/                            # Screen Modules (Separated UI, Styles & Business Logic)
+│   │   ├── ProductListScreen/
+│   │   │   ├── ProductListScreen.tsx       # Pure UI Presentation Layout
+│   │   │   ├── ProductListScreen.styles.ts # Dedicated StyleSheet & Tokens
+│   │   │   ├── useProductListScreen.ts     # Business Logic Hook & Navigation Wiring
+│   │   │   └── index.tsx                   # Screen Container connecting Logic to View
+│   │   │
+│   │   └── ProductDetailScreen/
+│   │       ├── ProductDetailScreen.tsx     # Pure UI Presentation Layout
+│   │       ├── ProductDetailScreen.styles.ts # Dedicated StyleSheet
+│   │       ├── useProductDetailScreen.ts   # Business Logic Hook (Route params & callbacks)
+│   │       └── index.tsx                   # Screen Container connecting Logic to View
+│   │
+│   ├── components/                         # Modular Component Library
+│   │   ├── common/                         # Generic UI components (each with .tsx and .styles.ts)
+│   │   │   ├── Badge/
+│   │   │   │   ├── Badge.tsx
+│   │   │   │   └── Badge.styles.ts
+│   │   │   ├── RatingBadge/
+│   │   │   │   ├── RatingBadge.tsx
+│   │   │   │   └── RatingBadge.styles.ts
+│   │   │   ├── SearchBar/
+│   │   │   │   ├── SearchBar.tsx
+│   │   │   │   └── SearchBar.styles.ts
+│   │   │   ├── LoadingSkeleton/
+│   │   │   │   ├── SkeletonCard.tsx
+│   │   │   │   ├── SkeletonCard.styles.ts
+│   │   │   ├── ErrorView/
+│   │   │   │   ├── ErrorView.tsx
+│   │   │   │   └── ErrorView.styles.ts
+│   │   │   └── EmptyState/
+│   │   │       ├── EmptyView.tsx
+│   │   │       └── EmptyView.styles.ts
+│   │   │
+│   │   └── products/                       # Feature-specific product components
+│   │       ├── ProductCard/
+│   │       │   ├── ProductCard.tsx
+│   │       │   └── ProductCard.styles.ts
+│   │       ├── CategoryFilterBar/
+│   │       │   ├── CategoryFilterBar.tsx
+│   │       │   └── CategoryFilterBar.styles.ts
+│   │       ├── ProductImageCarousel/
+│   │       │   ├── ProductImageCarousel.tsx
+│   │       │   └── ProductImageCarousel.styles.ts
+│   │       ├── ProductInfo/
+│   │       │   ├── ProductInfo.tsx
+│   │       │   └── ProductInfo.styles.ts
+│   │       ├── ProductSpecs/
+│   │       │   ├── ProductSpecs.tsx
+│   │       │   └── ProductSpecs.styles.ts
+│   │       └── ProductReviewsList/
+│   │           ├── ProductReviewsList.tsx
+│   │           └── ProductReviewsList.styles.ts
+│   │
+│   ├── hooks/                              # Business Logic Hooks
+│   │   ├── useProducts.ts                  # List state, search debounce, category filtering, refresh/retry
+│   │   ├── useProductDetail.ts             # Detail state, image selection, favorites, refresh/retry
+│   │   └── useTheme.ts                     # Color scheme & theme hook
+│   │
+│   ├── services/                           # API & Networking Layer
+│   │   ├── api/
+│   │   │   └── apiClient.ts                # Generic fetch client with timeout & error normalization
+│   │   └── productService.ts               # Domain endpoints for products & categories
+│   │
+│   ├── constants/                          # Design tokens & theme definitions
+│   │   └── theme.ts                        # Palette, spacing, typography, shadows
+│   │
+│   ├── types/                              # TypeScript domain definitions
+│   │   ├── product.ts                      # Product, Review, Dimensions, Category
+│   │   └── api.ts                          # ApiError, AsyncState
+│   │
+│   └── utils/                              # Pure helper functions
+│       └── formatters.ts                   # Currency, discount, date, stock status formatting
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## 🚀 How to Run the App
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### Prerequisites
 
-## Learn more
+Ensure you have **Node.js (v18+)** installed. You can use either **Bun** or **npm**.
 
-To learn more about developing your project with Expo, look at the following resources:
+### 1. Install Dependencies
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Using **Bun** (recommended for this project):
+```bash
+bun install
+```
 
-## Join the community
+Or using **npm**:
+```bash
+npm install
+```
 
-Join our community of developers creating universal apps.
+### 2. Start the Development Server
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+# Using bun
+bun run start
+
+# Or using npx
+npx expo start
+```
+
+### 3. Open on Your Preferred Platform
+
+Once the Metro bundler starts in your terminal:
+- **iOS Simulator**: Press `i` (requires Xcode on macOS)
+- **Android Emulator**: Press `a` (requires Android Studio)
+- **Web Browser**: Press `w` (opens in your default browser)
+- **Physical Device**: Scan the QR code using the **Expo Go** app on your phone.
+
+---
+
+## 🧪 Quality & Verification Commands
+
+This project passes all TypeScript typechecks, lint rules, and Expo diagnostics with zero errors:
+
+```bash
+# Type check TypeScript codebase
+bunx tsc --noEmit
+
+# Run ESLint validation
+bunx expo lint
+
+# Diagnose Expo dependencies & configuration
+bunx expo-doctor
+```
+
+---
+
+## 🌐 Public API Reference
+
+- **Base URL**: `https://dummyjson.com`
+- **List & Pagination**: `GET /products?limit=30&skip=0`
+- **Search**: `GET /products/search?q={query}`
+- **Categories**: `GET /products/categories`
+- **Category Filter**: `GET /products/category/{slug}`
+- **Single Product**: `GET /products/{id}`
