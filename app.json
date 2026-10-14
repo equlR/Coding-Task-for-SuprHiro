@@ -8,9 +8,11 @@
     "scheme": "codingtaskforsuprhiro",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.anonymous.codingtaskforsuprhiro"
     },
     "android": {
+      "package": "com.anonymous.codingtaskforsuprhiro",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
